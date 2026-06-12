@@ -1,0 +1,122 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlserver"
+  url      = env("DATABASE_URL")
+}
+
+// ==========================
+// MASTER DATA MODELS
+// ==========================
+
+model LineMaster {
+  id        Int      @id @default(autoincrement())
+  lineName  String   @unique
+  createdAt DateTime @default(now())
+
+  // Relations
+  OperationLogs OperationLog[]
+  SKUs          SKUMaster[]
+}
+
+model SKUMaster {
+  id                 Int      @id @default(autoincrement())
+  productDescription String   @unique
+  uom                String
+  code               String?
+  createdAt          DateTime @default(now())
+
+  // Relations
+  lineId             Int?
+  line               LineMaster? @relation(fields: [lineId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  OperationLogs      OperationLog[]
+  MaterialItems      MaterialItem[]
+}
+
+model OperatorMaster {
+  id         Int      @id @default(autoincrement())
+  operator   String   @unique
+  createdAt  DateTime @default(now())
+
+  // Relations
+  OperationLogs OperationLog[]
+}
+
+model SupervisorMaster {
+  id             Int      @id @default(autoincrement())
+  supervisorName String   @unique
+  passwordHash   String
+  createdAt      DateTime @default(now())
+
+  // Relations
+  OperationLogs  OperationLog[]
+}
+
+model MaterialItem {
+  id        Int      @id @default(autoincrement())
+  itemName  String   @unique
+  createdAt DateTime @default(now())
+
+  // Relations
+  skuId          Int?
+  sku            SKUMaster? @relation(fields: [skuId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  MaterialUsages MaterialUsage[]
+}
+
+// ==========================
+// TRANSACTION MODELS
+// ==========================
+
+model OperationLog {
+  id              Int      @id @default(autoincrement())
+  productionDate  DateTime
+  startingTime    String
+  endTime         String
+  batchCode       String
+  fillingTankNo   String
+  batchQty        Float?
+  remarks         String?
+  documentNumber  String?
+
+  // Additional header fields
+  packedQty       Float?
+  fillingWastage  Float?
+  packingWastage  Float?
+
+  // Relations
+  lineId          Int
+  line            LineMaster     @relation(fields: [lineId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  
+  operatorId      Int
+  operator        OperatorMaster @relation(fields: [operatorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  supervisorId    Int
+  supervisor      SupervisorMaster @relation(fields: [supervisorId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  skuId           Int
+  sku             SKUMaster      @relation(fields: [skuId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  materialUsages  MaterialUsage[]
+
+  createdAt       DateTime       @default(now())
+}
+
+model MaterialUsage {
+  id                    Int      @id @default(autoincrement())
+  openingBalance        Float?
+  receivedFromStore     Float?
+  total                 Float?
+  filledSaleable        Float?
+  fillingWastage        Float?
+  packingWastage        Float?
+  closingBalance        Float?
+
+  // Relations
+  operationLogId        Int
+  operationLog          OperationLog @relation(fields: [operationLogId], references: [id], onDelete: Cascade)
+
+  materialItemId        Int
+  materialItem          MaterialItem @relation(fields: [materialItemId], references: [id])
+}
