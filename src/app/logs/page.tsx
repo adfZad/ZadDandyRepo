@@ -4,6 +4,8 @@ import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { handleLogout } from '../login/actions'
 
+export const dynamic = 'force-dynamic'
+
 export default async function LogsPage() {
   const session = await getSession()
   if (!session) {

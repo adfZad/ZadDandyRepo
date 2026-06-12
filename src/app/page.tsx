@@ -5,6 +5,8 @@ import { redirect } from 'next/navigation'
 import { handleLogout } from './login/actions'
 import Link from 'next/link'
 
+export const dynamic = 'force-dynamic'
+
 export default async function Home() {
   const session = await getSession()
   if (!session) {
