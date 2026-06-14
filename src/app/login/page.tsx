@@ -39,7 +39,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
                 name="supervisorName" 
                 required
                 defaultValue=""
-                className="w-full bg-gray-50 border border-gray-200 text-gray-800 rounded-xl px-4 py-2.5 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 appearance-none cursor-pointer font-medium shadow-sm"
+                className="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-xl px-4 py-2.5 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 appearance-none cursor-pointer font-medium shadow-sm"
               >
                 <option value="" disabled>Select your name...</option>
                 {supervisors.map((s) => (
@@ -60,7 +60,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
               type="password" 
               name="password"
               required
-              className="w-full bg-gray-50 border border-gray-200 text-gray-800 rounded-xl px-4 py-2.5 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 font-medium shadow-sm"
+              className="w-full bg-gray-50 border border-gray-200 text-gray-800 text-sm rounded-xl px-4 py-2.5 outline-none focus:bg-white focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all duration-300 font-medium shadow-sm"
               placeholder="Enter password"
             />
           </div>
