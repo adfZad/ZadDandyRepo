@@ -1,7 +1,7 @@
 "use server"
 
 import { prisma } from '@/lib/prisma'
-import { encrypt } from '@/lib/auth'
+import { encrypt, getSession } from '@/lib/auth'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 
@@ -42,4 +42,38 @@ export async function login(formData: FormData) {
 export async function handleLogout() {
   (await cookies()).delete('session')
   redirect('/login')
+}
+
+export async function changePassword(prevState: any, formData: FormData) {
+  const currentPassword = formData.get('currentPassword') as string
+  const newPassword = formData.get('newPassword') as string
+  const confirmPassword = formData.get('confirmPassword') as string
+
+  if (!currentPassword || !newPassword || !confirmPassword) {
+    return { error: 'All fields are required' }
+  }
+
+  if (newPassword !== confirmPassword) {
+    return { error: 'New passwords do not match' }
+  }
+
+  const session = await getSession()
+  if (!session) {
+    return { error: 'Unauthorized' }
+  }
+
+  const supervisor = await prisma.supervisorMaster.findUnique({
+    where: { id: session.supervisorId }
+  })
+
+  if (!supervisor || supervisor.passwordHash !== currentPassword) {
+    return { error: 'Incorrect current password' }
+  }
+
+  await prisma.supervisorMaster.update({
+    where: { id: session.supervisorId },
+    data: { passwordHash: newPassword }
+  })
+
+  return { success: 'Password changed successfully' }
 }

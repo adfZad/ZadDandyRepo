@@ -9,11 +9,6 @@ export default function MaterialsTable({ rows, setRows, disabled }: { rows: any[
     const newRows = [...rows];
     newRows[index] = { ...newRows[index], [field]: value };
     
-    // Auto calculate Total = Opening Balance + Received from Store
-    const ob = parseFloat(newRows[index].openingBalance) || 0;
-    const rec = parseFloat(newRows[index].receivedFromStore) || 0;
-    newRows[index].total = (ob + rec) > 0 ? (ob + rec).toString() : '';
-
     // Auto calculate Closing Balance = Total - (Filled + FillingWastage + PackingWastage)
     const tot = parseFloat(newRows[index].total) || 0;
     const filled = parseFloat(newRows[index].filledSaleable) || 0;
@@ -37,9 +32,7 @@ export default function MaterialsTable({ rows, setRows, disabled }: { rows: any[
           <thead>
             <tr className="bg-header-excel">
               <th className="border border-border-excel p-2 font-semibold text-left w-1/4">Item / Kind</th>
-              <th className="border border-border-excel p-2 font-semibold">Opening Balance</th>
-              <th className="border border-border-excel p-2 font-semibold">Received from Store</th>
-              <th className="border border-border-excel p-2 font-semibold">Total</th>
+              <th className="border border-border-excel p-2 font-semibold">Total Issued QTY</th>
               <th className="border border-border-excel p-2 font-semibold">Filled Saleable pieces</th>
               <th className="border border-border-excel p-2 font-semibold">Filling Wastage / Damage</th>
               <th className="border border-border-excel p-2 font-semibold">Packing Material Wastage / Damage</th>
@@ -48,7 +41,7 @@ export default function MaterialsTable({ rows, setRows, disabled }: { rows: any[
           </thead>
           <tbody>
             {rows.map((row, idx) => {
-              const hasData = row.openingBalance || row.receivedFromStore || row.total || row.filledSaleable || row.fillingWastage || row.packingWastage || row.closingBalance;
+              const hasData = row.total || row.filledSaleable || row.fillingWastage || row.packingWastage || row.closingBalance;
               if (disabled && !hasData) return null;
               
               return (
@@ -57,16 +50,8 @@ export default function MaterialsTable({ rows, setRows, disabled }: { rows: any[
                     {row.itemKind}
                   </td>
                   <td className="border border-border-excel p-0">
-                    {disabled ? <div className="p-1 text-center min-h-[28px]">{row.openingBalance}</div> : <input type="number" min="0" className="w-full h-full p-1 outline-none text-center" 
-                      value={row.openingBalance} onChange={(e) => handleInputChange(idx, 'openingBalance', e.target.value)} />}
-                  </td>
-                  <td className="border border-border-excel p-0">
-                    {disabled ? <div className="p-1 text-center min-h-[28px]">{row.receivedFromStore}</div> : <input type="number" min="0" className="w-full h-full p-1 outline-none text-center" 
-                      value={row.receivedFromStore} onChange={(e) => handleInputChange(idx, 'receivedFromStore', e.target.value)} />}
-                  </td>
-                  <td className="border border-border-excel p-0 bg-gray-100">
-                    {disabled ? <div className="p-1 text-center font-semibold min-h-[28px]">{row.total}</div> : <input type="number" readOnly className="w-full h-full p-1 outline-none text-center bg-transparent font-semibold" 
-                      value={row.total} />}
+                    {disabled ? <div className="p-1 text-center min-h-[28px]">{row.total}</div> : <input type="number" min="0" className="w-full h-full p-1 outline-none text-center" 
+                      value={row.total} onChange={(e) => handleInputChange(idx, 'total', e.target.value)} />}
                   </td>
                   <td className="border border-border-excel p-0">
                     {disabled ? <div className="p-1 text-center min-h-[28px]">{row.filledSaleable}</div> : <input type="number" min="0" className="w-full h-full p-1 outline-none text-center" 

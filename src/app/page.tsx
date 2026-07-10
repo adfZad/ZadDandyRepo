@@ -4,6 +4,7 @@ import { getSession } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import { handleLogout } from './login/actions'
 import Link from 'next/link'
+import ChangePasswordButton from '@/components/ChangePasswordButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,7 +13,7 @@ export default async function Home() {
   if (!session) {
     redirect('/login')
   }
-
+  const zones = await prisma.zoneMaster.findMany()
   const lines = await prisma.lineMaster.findMany()
   const operators = await prisma.operatorMaster.findMany()
   const skus = await prisma.sKUMaster.findMany()
@@ -30,15 +31,18 @@ export default async function Home() {
             <Link href="/logs" className="text-gray-500 hover:text-blue-600 font-medium">Order History</Link>
           </nav>
         </div>
-        <form action={handleLogout}>
-          <button type="submit" className="text-sm bg-red-50 text-red-600 px-4 py-1.5 rounded border border-red-200 hover:bg-red-100 transition">
-            Logout
-          </button>
-        </form>
+        <div className="flex items-center space-x-3">
+          <ChangePasswordButton />
+          <form action={handleLogout}>
+            <button type="submit" className="text-sm bg-red-50 text-red-600 px-4 py-1.5 rounded border border-red-200 hover:bg-red-100 transition">
+              Logout
+            </button>
+          </form>
+        </div>
       </header>
 
       <div className="bg-white max-w-7xl mx-auto shadow-sm border border-gray-300">
-        <LogForm lines={lines} operators={operators} skus={skus} materialItems={materialItems} />
+        <LogForm zones={zones} lines={lines} operators={operators} skus={skus} materialItems={materialItems} />
       </div>
     </main>
   )

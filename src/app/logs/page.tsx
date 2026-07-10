@@ -3,6 +3,7 @@ import { getSession } from '@/lib/auth'
 import { redirect } from 'next/navigation'
 import Link from 'next/link'
 import { handleLogout } from '../login/actions'
+import ChangePasswordButton from '@/components/ChangePasswordButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -33,11 +34,14 @@ export default async function LogsPage() {
             <Link href="/logs" className="text-blue-600 font-medium border-b-2 border-blue-600">Order History</Link>
           </nav>
         </div>
-        <form action={handleLogout}>
-          <button type="submit" className="text-sm bg-red-50 text-red-600 px-4 py-1.5 rounded border border-red-200 hover:bg-red-100 transition">
-            Logout
-          </button>
-        </form>
+        <div className="flex items-center space-x-3">
+          <ChangePasswordButton />
+          <form action={handleLogout}>
+            <button type="submit" className="text-sm bg-red-50 text-red-600 px-4 py-1.5 rounded border border-red-200 hover:bg-red-100 transition">
+              Logout
+            </button>
+          </form>
+        </div>
       </header>
 
       <div className="max-w-7xl mx-auto px-4">
@@ -52,6 +56,7 @@ export default async function LogsPage() {
                 <th className="p-3 text-left font-semibold text-gray-700">SKU</th>
                 <th className="p-3 text-left font-semibold text-gray-700">Operator</th>
                 <th className="p-3 text-left font-semibold text-gray-700">Batch Code</th>
+                <th className="p-3 text-right font-semibold text-gray-700">Run Hrs</th>
                 <th className="p-3 text-right font-semibold text-gray-700">Packed Qty</th>
               </tr>
             </thead>
@@ -63,12 +68,13 @@ export default async function LogsPage() {
                   <td className="p-3 text-gray-800">{log.sku.productDescription}</td>
                   <td className="p-3 text-gray-800">{log.operator.operator}</td>
                   <td className="p-3 text-gray-800">{log.batchCode}</td>
+                  <td className="p-3 text-right text-gray-800">{log.totalRunHours || '-'}</td>
                   <td className="p-3 text-right font-medium text-gray-800">{log.packedQty || '-'}</td>
                 </tr>
               ))}
               {logs.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="p-6 text-center text-gray-500">No logs submitted yet.</td>
+                  <td colSpan={7} className="p-6 text-center text-gray-500">No logs submitted yet.</td>
                 </tr>
               )}
             </tbody>

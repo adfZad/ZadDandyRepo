@@ -11,12 +11,23 @@ datasource db {
 // MASTER DATA MODELS
 // ==========================
 
+model ZoneMaster {
+  id        Int      @id @default(autoincrement())
+  zoneName  String   @unique
+  createdAt DateTime @default(now())
+
+  // Relations
+  Lines     LineMaster[]
+}
+
 model LineMaster {
   id        Int      @id @default(autoincrement())
   lineName  String   @unique
   createdAt DateTime @default(now())
 
   // Relations
+  zoneId    Int?
+  zone      ZoneMaster? @relation(fields: [zoneId], references: [id], onDelete: NoAction, onUpdate: NoAction)
   OperationLogs OperationLog[]
   SKUs          SKUMaster[]
 }
@@ -74,6 +85,7 @@ model OperationLog {
   productionDate  DateTime
   startingTime    String
   endTime         String
+  totalRunHours   Float?
   batchCode       String
   fillingTankNo   String
   batchQty        Float?
