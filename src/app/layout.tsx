@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "LABAN SHARAB FILLING MACHINE / OPERATION LOG SHEET",
+  title: "Production Log Sheet",
   description: "Dandy Operation Log Sheet",
 };
 
@@ -27,7 +27,7 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col overflow-y-scroll">{children}</body>
     </html>
   );
 }

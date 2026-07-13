@@ -24,7 +24,8 @@ export async function submitOperationLog(formData: any, materials: any[]) {
       skuName,
       packedQty,
       fillingWastage,
-      packingWastage
+      packingWastage,
+      efficiency
     } = formData
 
     // Find Master Data IDs
@@ -52,6 +53,7 @@ export async function submitOperationLog(formData: any, materials: any[]) {
         packedQty: packedQty ? parseFloat(packedQty) : null,
         fillingWastage: fillingWastage ? parseFloat(fillingWastage) : null,
         packingWastage: packingWastage ? parseFloat(packingWastage) : null,
+        efficiency: efficiency ? parseFloat(efficiency) : null,
         lineId: line.id,
         operatorId: opr.id,
         skuId: sku.id,

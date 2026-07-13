@@ -22,6 +22,7 @@ export default function LogForm({ zones, lines, operators, skus, materialItems }
     fillingWastage: '',
     packingWastage: '',
   })
+  const [efficiency, setEfficiency] = useState('')
 
   const [materials, setMaterials] = useState<any[]>([])
 
@@ -88,6 +89,22 @@ export default function LogForm({ zones, lines, operators, skus, materialItems }
     setFormData({ ...formData, [e.target.name]: e.target.value })
   }
 
+  // Calculate Efficiency Dynamically
+  React.useEffect(() => {
+    let eff = '';
+    if (formData.batchQty && formData.totalRunHours && formData.skuName) {
+      const selectedSkuObj = skus?.find((s: any) => s.productDescription === formData.skuName);
+      const standardSpeed = selectedSkuObj?.STDHOURLYSPEED ? parseFloat(selectedSkuObj.STDHOURLYSPEED) : 0;
+      const actualOutput = parseFloat(formData.batchQty);
+      const runHours = parseFloat(formData.totalRunHours);
+      
+      if (standardSpeed > 0 && runHours > 0) {
+        eff = ((actualOutput / (standardSpeed * runHours)) * 100).toFixed(2);
+      }
+    }
+    setEfficiency(eff);
+  }, [formData.batchQty, formData.totalRunHours, formData.skuName, skus]);
+
   // Filter Lines based on selected Zone
   const selectedZoneObj = zones?.find((z: any) => z.zoneName === formData.zone);
   const filteredLines = selectedZoneObj 
@@ -117,7 +134,8 @@ export default function LogForm({ zones, lines, operators, skus, materialItems }
 
   const handleSubmit = async () => {
     setLoading(true)
-    const result = await submitOperationLog(formData, materials)
+    const dataToSubmit = { ...formData, efficiency }
+    const result = await submitOperationLog(dataToSubmit, materials)
     setLoading(false)
     if (result.success) {
       alert("Log Sheet Submitted Successfully!")
@@ -137,7 +155,7 @@ export default function LogForm({ zones, lines, operators, skus, materialItems }
       `}</style>
       
       {/* Title */}
-      <div className="grid grid-cols-[120px_auto_120px] items-center mb-4 border-b-2 border-black pb-2 px-2">
+      <div className="grid grid-cols-[120px_auto_120px] items-center mb-6 border-b-2 border-black pb-4 px-2">
         {/* Left Logo */}
         <div className="flex justify-start">
           <img src="/dandy-logo.png" alt="Dandy Logo" className="h-16 print:h-12 w-auto object-contain" />
@@ -154,12 +172,7 @@ export default function LogForm({ zones, lines, operators, skus, materialItems }
           <span className="text-[48px] print:text-[36px] font-bold text-[#d1d5db]" style={{ WebkitTextStroke: '1.5px black', letterSpacing: '2px', lineHeight: 1 }}>IMS</span>
         </div>
       </div>
-
-      <div className="flex justify-end mb-2 pr-2">
-        <span className="font-semibold text-gray-700 mr-2">Document Number:</span>
-        <span className="text-gray-500 font-medium">DCL-SCF-01</span>
-      </div>
-
+      
       {/* Header Grid */}
       <table className="w-full table-fixed border-collapse border border-border-excel mb-6">
         <tbody>
@@ -175,7 +188,7 @@ export default function LogForm({ zones, lines, operators, skus, materialItems }
               </select>}
             </td>
             <td className="w-[10%] border border-border-excel bg-header-excel p-1 font-semibold whitespace-nowrap">Line</td>
-            <td className="w-[13%] border border-border-excel p-1">
+            <td className="w-[15%] border border-border-excel p-1">
               {isReviewing ? <div className="p-1 min-h-[28px] break-words">{formData.machineLine}</div> : <select name="machineLine" value={formData.machineLine} onChange={handleChange} className="w-full outline-none">
                 <option value="">Select Line...</option>
                 {filteredLines.map((l: any) => (
@@ -193,7 +206,7 @@ export default function LogForm({ zones, lines, operators, skus, materialItems }
               </select>}
             </td>
             <td className="w-[11%] border border-border-excel bg-header-excel p-1 font-semibold whitespace-nowrap">Operator</td>
-            <td className="w-[15%] border border-border-excel p-1">
+            <td className="w-[13%] border border-border-excel p-1">
               {isReviewing ? <div className="p-1 min-h-[28px] break-words">{formData.operator}</div> : <select name="operator" value={formData.operator} onChange={handleChange} className="w-full outline-none">
                 <option value="">Select Operator...</option>
                 {operators.map((o: any) => (
@@ -239,17 +252,21 @@ export default function LogForm({ zones, lines, operators, skus, materialItems }
             </td>
           </tr>
 
-          {/* Row 4: Packed Qty (PCS), Filling Wastage Qty (PCS), PM Wastage Qty (PCS) */}
+          {/* Row 4: Packed Qty, Efficiency %, Filling Wastage Qty, PM Wastage Qty */}
           <tr>
-            <td className="border border-border-excel bg-header-excel p-1 font-semibold whitespace-nowrap">Packed Qty (PCS)</td>
-            <td className="border border-border-excel p-1" colSpan={2}>
+            <td className="border border-border-excel bg-header-excel p-1 font-semibold whitespace-nowrap">Packed Qty</td>
+            <td className="border border-border-excel p-1">
               {isReviewing ? <div className="p-1 min-h-[28px] break-words">{formData.packedQty}</div> : <input type="number" min="0" name="packedQty" value={formData.packedQty} onChange={handleChange} className="w-full outline-none" />}
             </td>
-            <td className="border border-border-excel bg-header-excel p-1 font-semibold whitespace-nowrap">Filling Wastage Qty (PCS)</td>
-            <td className="border border-border-excel p-1" colSpan={2}>
+            <td className="border border-border-excel bg-header-excel p-1 font-semibold whitespace-nowrap">Efficiency %</td>
+            <td className="border border-border-excel p-1">
+              {isReviewing ? <div className="p-1 min-h-[28px] break-words">{efficiency}</div> : <input type="text" name="efficiency" value={efficiency} className="w-full outline-none bg-gray-50" readOnly />}
+            </td>
+            <td className="border border-border-excel bg-header-excel p-1 font-semibold whitespace-nowrap">Filling Wastage Qty</td>
+            <td className="border border-border-excel p-1">
               {isReviewing ? <div className="p-1 min-h-[28px] break-words">{formData.fillingWastage}</div> : <input type="number" min="0" name="fillingWastage" value={formData.fillingWastage} onChange={handleChange} className="w-full outline-none" />}
             </td>
-            <td className="border border-border-excel bg-header-excel p-1 font-semibold whitespace-nowrap">PM Wastage Qty (PCS)</td>
+            <td className="border border-border-excel bg-header-excel p-1 font-semibold whitespace-nowrap">PM Wastage Qty</td>
             <td className="border border-border-excel p-1">
               {isReviewing ? <div className="p-1 min-h-[28px] break-words">{formData.packingWastage}</div> : <input type="number" min="0" name="packingWastage" value={formData.packingWastage} onChange={handleChange} className="w-full outline-none" />}
             </td>
@@ -259,7 +276,7 @@ export default function LogForm({ zones, lines, operators, skus, materialItems }
           <tr>
             <td className="border border-border-excel bg-header-excel p-1 font-semibold whitespace-nowrap">Remarks</td>
             <td className="border border-border-excel p-1" colSpan={7}>
-              {isReviewing ? <div className="p-1 min-h-[28px] break-words">{formData.remarks}</div> : <input type="text" name="remarks" value={formData.remarks} onChange={handleChange} className="w-full outline-none" placeholder=".................................." />}
+              {isReviewing ? <div className="p-1 min-h-[28px] break-words">{formData.remarks}</div> : <input type="text" name="remarks" value={formData.remarks} onChange={handleChange} className="w-full outline-none" />}
             </td>
           </tr>
         </tbody>

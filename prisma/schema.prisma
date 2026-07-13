@@ -37,6 +37,7 @@ model SKUMaster {
   productDescription String   @unique
   uom                String
   code               String?
+  STDHOURLYSPEED     String?
   createdAt          DateTime @default(now())
 
   // Relations
@@ -96,6 +97,7 @@ model OperationLog {
   packedQty       Float?
   fillingWastage  Float?
   packingWastage  Float?
+  efficiency      Float?
 
   // Relations
   lineId          Int
